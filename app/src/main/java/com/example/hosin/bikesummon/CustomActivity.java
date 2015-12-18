@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.MapView;
 
-public class MainActivity extends AppCompatActivity
+public class CustomActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private MapView mapView=null;
