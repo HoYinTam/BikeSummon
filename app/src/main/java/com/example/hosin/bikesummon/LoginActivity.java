@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +33,14 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -330,8 +339,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mPassword;
         private final Boolean isCustom;
         private int userID=0;
-        private final String url=null; //TODO: wait for url
-        private HttpURLConnection connection=null;
+        private final String url="http://hellobike.sinaapp.com/users"; //TODO: wait for url
 
         UserLoginTask(String email, String password,Boolean isCustom) {
             mEmail = email;
@@ -345,45 +353,53 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 // Simulate network access.
-                Thread.sleep(2000);
-                /*
-                connection=(HttpURLConnection) ((new URL(url.toString()).openConnection()));
-                connection.setRequestMethod("POST");
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(8000);
+                //Thread.sleep(2000);
 
-                //upload data
-                DataOutputStream out=new DataOutputStream(connection.getOutputStream());
+
                 JSONObject jsonObject=new JSONObject();
+                jsonObject.put("action","login");
                 jsonObject.put("email",mEmail);
                 //TODO: encrypt the password
-                jsonObject.put("passwd",mPassword);
+                jsonObject.put("passwd", mPassword);
                 if(isCustom){
                     jsonObject.put("type","custom");
                 }else{
                     jsonObject.put("type","driver");
                 }
-                out.writeBytes(jsonObject.toString());
+                Log.d("json", jsonObject.toString());
 
-                //get data from server
-                InputStream in=connection.getInputStream();
-                BufferedReader reader=new BufferedReader(new InputStreamReader(in));
-                StringBuilder response=new StringBuilder();
-                String line;
-                while((line=reader.readLine())!=null){
-                    response.append(line);
+                HttpPost post=new HttpPost(url);
+                post.addHeader("Content-Type", "application/json");
+                HttpEntity entity=null;
+                StringEntity se=new StringEntity(jsonObject.toString(), HTTP.UTF_8);
+                post.setEntity(se);
+                Log.d("sina", "send finished");
+
+                HttpClient client=new DefaultHttpClient();
+                HttpResponse response=client.execute(post);
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    Log.d("sina", response.toString());
+
+                    String result = EntityUtils.toString(response.getEntity());
+
+                    //result = new String(result.getBytes(""));
+
+                    //JSONObject res = new JSONObject(result);
+
+                    Log.d("sina", "Responese:" + result.toString());
+
+
+                /*
+                    if(res.getInt("userID")==-1){
+                        return false;
+                    }else if(res.getInt("userID")==0){
+                        // TODO: register the new account here.
+                        return true;
+                     }else{
+                        userID=res.getInt("userID");
+                        return true;
+                     }*/
                 }
-                JSONObject res=new JSONObject(response.toString());
-                if(res.getInt("userID")==-1){
-                    return false;
-                }else if(res.getInt("userID")==0){
-                    // TODO: register the new account here.
-                    return true;
-                }else{
-                    userID=res.getInt("userID");
-                    return true;
-                }*/
-
                 for (String credential : DUMMY_CREDENTIALS) {
                     String[] pieces = credential.split(":");
                     if (pieces[0].equals(mEmail)) {
@@ -393,6 +409,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 return true;
             } catch (Exception e) {
+                e.printStackTrace();
                 return false;
             }finally {
                 //if(connection!=null) connection.disconnect();

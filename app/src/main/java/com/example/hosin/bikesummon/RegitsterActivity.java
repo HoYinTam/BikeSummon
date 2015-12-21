@@ -9,11 +9,20 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -196,8 +205,7 @@ public class RegitsterActivity extends AppCompatActivity {
         private String nickname;
         private String password;
         private String phone;
-        private final String url=null; //TODO: wait for url
-        private HttpURLConnection connection=null;
+        private final String url="http://hellobike.sinaapp.com/users"; //TODO: wait for url
 
         UserRegisterTask(String email,String phone,String nickname,String password,Boolean isCustom){
             this.email=email;
@@ -210,17 +218,11 @@ public class RegitsterActivity extends AppCompatActivity {
         protected Integer doInBackground(Void... params) {
             try {
                 // Simulate network access.
-                Thread.sleep(2000);
-
-                /*
-                connection = (HttpURLConnection) ((new URL(url.toString()).openConnection()));
-                connection.setRequestMethod("POST");
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(8000);
+                //Thread.sleep(2000);
 
                 //upload data
-                DataOutputStream out = new DataOutputStream(connection.getOutputStream());
                 JSONObject jsonObject = new JSONObject();
+                jsonObject.put("action","register");
                 jsonObject.put("phone",phone);
                 jsonObject.put("nickname",nickname);
                 jsonObject.put("email", email);
@@ -231,20 +233,33 @@ public class RegitsterActivity extends AppCompatActivity {
                 } else {
                     jsonObject.put("type", "driver");
                 }
-                out.writeBytes(jsonObject.toString());
+                Log.d("json", jsonObject.toString());
+                //out.writeBytes(jsonObject.toString());
+                //Log.d("sina", "out");
+
+                HttpPost post=new HttpPost(url);
+                post.addHeader("Content-Type", "application/json");
+                HttpEntity entity=null;
+                StringEntity se=new StringEntity(jsonObject.toString(), HTTP.UTF_8);
+                post.setEntity(se);
+                Log.d("sina", "send finished");
 
                 //get data from server
-                InputStream in = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
+                HttpClient client=new DefaultHttpClient();
+                HttpResponse response=client.execute(post);
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    Log.d("sina", response.toString());
+
+                    String result = EntityUtils.toString(response.getEntity());
+
+                    //JSONObject res = new JSONObject(result);
+
+                    Log.d("sina", "Responese:" + result.toString());
+                    //return res.getInt("userID");
                 }
-                JSONObject res = new JSONObject(response.toString());
-                return res.getInt("userID");*/
                 return 2;
             } catch (Exception e) {
+                e.printStackTrace();
                 return -1;
             }
         }
