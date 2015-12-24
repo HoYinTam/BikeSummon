@@ -59,13 +59,7 @@
 
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="@string/app_name" />
 
         <service
             android:name="com.baidu.location.f"
@@ -74,14 +68,22 @@
         <service
             android:name="com.baidu.trace.LBSTraceService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
-        <activity android:name=".TestActivity">
+        <activity
+            android:name=".TestActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-        <activity android:name=".RegitsterActivity">
-
-        </activity>
+        <activity android:name=".RegitsterActivity" />
+        <activity
+            android:name=".slidingActivity"
+            android:label="@string/title_activity_sliding"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

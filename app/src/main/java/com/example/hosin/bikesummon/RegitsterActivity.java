@@ -11,9 +11,13 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import com.ant.liao.GifView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -25,15 +29,10 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 public class RegitsterActivity extends AppCompatActivity {
 
+
+    private  Boolean flag=true;
     private View mProgressView;
     private View mRegisterView;
 
@@ -41,8 +40,12 @@ public class RegitsterActivity extends AppCompatActivity {
     private EditText phone;
     private EditText password;
     private EditText nickname;
+    private EditText realName;
     private Button register;
+    private Button more;
     private RadioGroup whois;
+    private RadioGroup sex;
+    private RadioGroup relation;
 
     private UserRegisterTask mAuthTask=null;
 
@@ -50,13 +53,53 @@ public class RegitsterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regitster);
-        mRegisterView=findViewById(R.id.register_form);
+        mRegisterView=findViewById(R.id.registerLayout);
+
         mProgressView = findViewById(R.id.register_progress);
-        whois =(RadioGroup) findViewById(R.id.radioGroup);
+        /*mProgressView.setGifImage(R.drawable.loading);
+        mProgressView.setGifImageType(GifView.GifImageType.COVER);
+        WindowManager wm = this.getWindowManager();
+        mProgressView.setShowDimension(wm.getDefaultDisplay().getWidth(),80);*/
+
         email=(EditText)findViewById(R.id.registerEmail);
         phone=(EditText)findViewById(R.id.registerPhone);
         password=(EditText)findViewById(R.id.registerPassword);
         nickname=(EditText)findViewById(R.id.nickname);
+        realName=(EditText)findViewById(R.id.realName);
+        sex=(RadioGroup)findViewById(R.id.sexGroup);
+        relation=(RadioGroup)findViewById(R.id.relationGroup);
+
+        whois =(RadioGroup) findViewById(R.id.radioGroup);
+        whois.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(checkedId==R.id.registerCustom){
+                    realName.setVisibility(View.GONE);
+                    if(flag)sex.setVisibility(View.GONE);
+                }else{
+                    realName.setVisibility(View.VISIBLE);
+                    sex.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+
+        more=(Button)findViewById(R.id.more);
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(flag){
+                    relation.setVisibility(View.VISIBLE);
+                    sex.setVisibility(View.VISIBLE);
+                    flag=false;
+                }else{
+                    relation.setVisibility(View.GONE);
+                    sex.setVisibility(View.GONE);
+                    flag=true;
+                }
+            }
+        });
+
         register=(Button)findViewById(R.id.register);
         register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,6 +181,7 @@ public class RegitsterActivity extends AppCompatActivity {
             cancel = true;
         }
 
+
         //Check for a valid phone
         if(TextUtils.isEmpty(mPhone)){
             phone.setError(getString(R.string.error_field_required));
@@ -148,6 +192,7 @@ public class RegitsterActivity extends AppCompatActivity {
             focusView=phone;
             cancel=true;
         }
+
 
         //Check for a valid nickname
         if(TextUtils.isEmpty(mNickName)){
@@ -201,17 +246,17 @@ public class RegitsterActivity extends AppCompatActivity {
     public class UserRegisterTask extends AsyncTask<Void,Void,Integer>{
 
         private Boolean isCustom;
-        private String email;
-        private String nickname;
-        private String password;
-        private String phone;
-        private final String url="http://hellobike.sinaapp.com/users"; //TODO: wait for url
+        private String mEmail;
+        private String mNickname;
+        private String mPassword;
+        private String mPhone;
+        private final String url="http://hellobike.sinaapp.com/register"; //TODO: wait for url
 
-        UserRegisterTask(String email,String phone,String nickname,String password,Boolean isCustom){
-            this.email=email;
-            this.phone=phone;
-            this.nickname=nickname;
-            this.password=password;
+        UserRegisterTask(String mEmail,String mPhone,String mNickname,String mPassword,Boolean isCustom){
+            this.mEmail = mEmail;
+            this.mPhone = mPhone;
+            this.mNickname = mNickname;
+            this.mPassword = mPassword;
             this.isCustom=isCustom;
         }
         @Override
@@ -222,14 +267,14 @@ public class RegitsterActivity extends AppCompatActivity {
 
                 //upload data
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("action","register");
-                jsonObject.put("phone",phone);
-                jsonObject.put("nickname",nickname);
-                jsonObject.put("email", email);
+                //jsonObject.put("action","register");
+                jsonObject.put("tel", mPhone);
+                jsonObject.put("username", mNickname);
+                jsonObject.put("email", mEmail);
                 //TODO: encrypt the password
-                jsonObject.put("passwd", password);
+                jsonObject.put("password", mPassword);
                 if (isCustom) {
-                    jsonObject.put("type", "custom");
+                    jsonObject.put("type", "customer");
                 } else {
                     jsonObject.put("type", "driver");
                 }
@@ -251,13 +296,19 @@ public class RegitsterActivity extends AppCompatActivity {
                     Log.d("sina", response.toString());
 
                     String result = EntityUtils.toString(response.getEntity());
-
-                    //JSONObject res = new JSONObject(result);
-
                     Log.d("sina", "Responese:" + result.toString());
-                    //return res.getInt("userID");
+
+                    JSONObject res = new JSONObject(result);
+                    if(res.getInt("status")==0){
+                        return isCustom? res.getInt("userID"):res.getInt("driverID");
+                    }
+                    else{
+                        Log.e("conn",res.getString("message"));
+                        return -1;
+                    }
+                }else{
+                    return -1;
                 }
-                return 2;
             } catch (Exception e) {
                 e.printStackTrace();
                 return -1;
@@ -275,7 +326,10 @@ public class RegitsterActivity extends AppCompatActivity {
                 }
 
             }else{
-
+                    mAuthTask=null;
+                    showProgress(false);
+                    Toast.makeText(RegitsterActivity.this,"Opps!Register fail",Toast.LENGTH_SHORT).show();
+                    password.setText("");
             }
         }
 

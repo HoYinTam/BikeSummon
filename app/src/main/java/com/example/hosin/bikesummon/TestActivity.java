@@ -3,6 +3,10 @@ package com.example.hosin.bikesummon;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+import android.widget.Toolbar;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -20,6 +24,7 @@ public class TestActivity extends AppCompatActivity {
     private MapView mapView=null;
     private LocationClient locationClient=null;
     boolean isFirst=true;
+    private android.support.v7.widget.Toolbar toolbar=null;
 
     private BDLocationListener locationListener= new BDLocationListener() {
         @Override
@@ -43,7 +48,15 @@ public class TestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SDKInitializer.initialize(getApplicationContext());
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_test);
+
+        //Toolbar
+        toolbar=(android.support.v7.widget.Toolbar)findViewById(R.id.toolbar);
+        toolbar.setTitle("Customer");
+        setSupportActionBar(toolbar);
+
+
 
         //Location
         locationClient=new LocationClient(getApplicationContext());
@@ -56,6 +69,9 @@ public class TestActivity extends AppCompatActivity {
         mapView.getMap().setMyLocationEnabled(true);
         mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL,true,null));
     }
+
+
+
 
     private void initLocation() {
         LocationClientOption option=new LocationClientOption();
@@ -89,5 +105,17 @@ public class TestActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mapView.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    //Listener on toolbar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 }

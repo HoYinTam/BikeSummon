@@ -81,6 +81,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // UI references.
     private AutoCompleteTextView mEmailView;
+    private EditText mUsernameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -93,6 +94,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+
+        mUsernameView=(EditText)findViewById(R.id.usrname);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -186,21 +189,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mUsernameView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String username = mUsernameView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if(TextUtils.isEmpty(password)){
+            mPasswordView.setError(getString(R.string.error_field_required));
+        }
+        else if (!isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
+         //TODO:JUST FOR EMAIL LONGIN
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
@@ -211,6 +220,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             focusView = mEmailView;
             cancel = true;
         }
+
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -339,7 +349,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mPassword;
         private final Boolean isCustom;
         private int userID=0;
-        private final String url="http://hellobike.sinaapp.com/users"; //TODO: wait for url
+        private final String url="http://hellobike.sinaapp.com/login"; //TODO: wait for url
 
         UserLoginTask(String email, String password,Boolean isCustom) {
             mEmail = email;
@@ -357,12 +367,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
                 JSONObject jsonObject=new JSONObject();
-                jsonObject.put("action","login");
                 jsonObject.put("email",mEmail);
                 //TODO: encrypt the password
-                jsonObject.put("passwd", mPassword);
+                jsonObject.put("password", mPassword);
                 if(isCustom){
-                    jsonObject.put("type","custom");
+                    jsonObject.put("type","customer");
                 }else{
                     jsonObject.put("type","driver");
                 }
@@ -381,13 +390,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Log.d("sina", response.toString());
 
                     String result = EntityUtils.toString(response.getEntity());
-
-                    //result = new String(result.getBytes(""));
-
-                    //JSONObject res = new JSONObject(result);
-
                     Log.d("sina", "Responese:" + result.toString());
 
+                    JSONObject res = new JSONObject(result);
+                    if(res.getInt("status")==0){
+                            userID=isCustom?res.getInt("userID"):res.getInt("driverID");
+                            return true;
+                    }else{
+                        Log.e("conn",res.getString("message"));
+                        return false;
+                    }
 
                 /*
                     if(res.getInt("userID")==-1){
@@ -400,14 +412,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         return true;
                      }*/
                 }
+                /*
                 for (String credential : DUMMY_CREDENTIALS) {
                     String[] pieces = credential.split(":");
                     if (pieces[0].equals(mEmail)) {
                         // Account exists, return true if the password matches.
                         return pieces[1].equals(mPassword);
                     }
-                }
-                return true;
+                }*/
+                return false;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
