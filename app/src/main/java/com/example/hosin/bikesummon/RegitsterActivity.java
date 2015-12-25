@@ -250,7 +250,7 @@ public class RegitsterActivity extends AppCompatActivity {
         private String mNickname;
         private String mPassword;
         private String mPhone;
-        private final String url="http://hellobike.sinaapp.com/register"; //TODO: wait for url
+        private final String url="http://hellobike.sinaapp.com/register";
 
         UserRegisterTask(String mEmail,String mPhone,String mNickname,String mPassword,Boolean isCustom){
             this.mEmail = mEmail;

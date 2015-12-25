@@ -1,12 +1,20 @@
 package com.example.hosin.bikesummon;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.widget.Toolbar;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -15,23 +23,24 @@ import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
-import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
 
-public class TestActivity extends AppCompatActivity {
+public class CustomerActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
     private TextureMapView mapView=null;
     private LocationClient locationClient=null;
     boolean isFirst=true;
-    private android.support.v7.widget.Toolbar toolbar=null;
+    private Toolbar toolbar;
+    private int userID;
 
     private BDLocationListener locationListener= new BDLocationListener() {
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
             //Log.d("test", String.valueOf(bdLocation.getLatitude()));
-           // Log.d("test", String.valueOf(bdLocation.getLongitude()));
+            // Log.d("test", String.valueOf(bdLocation.getLongitude()));
             if(isFirst){
                 LatLng latLng=new LatLng(bdLocation.getLatitude(),bdLocation.getLongitude());
                 MapStatusUpdate update= MapStatusUpdateFactory.newLatLng(latLng);
@@ -47,17 +56,17 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SDKInitializer.initialize(getApplicationContext());
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_test);
-
-        //Toolbar
-        toolbar=(android.support.v7.widget.Toolbar)findViewById(R.id.mToolbar);
-        toolbar.setTitle("Customer");
+        SDKInitializer.initialize(getApplicationContext());
+        setContentView(R.layout.activity_customer);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Home");
         setSupportActionBar(toolbar);
 
 
+        //Get UserID
+        Intent intent=getIntent();
+        userID=intent.getIntExtra("userID",0);
 
         //Location
         locationClient=new LocationClient(getApplicationContext());
@@ -66,13 +75,21 @@ public class TestActivity extends AppCompatActivity {
         locationClient.start();
 
 
-        mapView=(TextureMapView) findViewById(R.id.testMapview);
+        mapView=(TextureMapView) findViewById(R.id.view);
         mapView.getMap().setMyLocationEnabled(true);
-        mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL,true,null));
+        mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null));
+        mapView.showScaleControl(false);
+        mapView.showZoomControls(false);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
-
-
-
 
     private void initLocation() {
         LocationClientOption option=new LocationClientOption();
@@ -108,15 +125,77 @@ public class TestActivity extends AppCompatActivity {
         mapView.onResume();
     }
 
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
-        return super.onCreateOptionsMenu(menu);
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
-    //Listener on toolbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.customer, menu);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_profile) {
+            //TODO: add profile fragment
+            toolbar.setTitle("Profile");
+        } else if (id == R.id.nav_orders) {
+            //TODO: history orders
+            toolbar.setTitle("My orders");
+        } else if (id == R.id.action_settings) {
+            //TODO:settings
+            toolbar.setTitle("Settings");
+        } else if (id == R.id.nav_home) {
+            toolbar.setTitle("Home");
+        } else if (id == R.id.action_logout) {
+            AlertDialog.Builder builder =new AlertDialog.Builder(CustomerActivity.this);
+            builder.setTitle("Logout");
+            builder.setMessage("Do you want to logout?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //TODO:LOGOUT
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            builder.show();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

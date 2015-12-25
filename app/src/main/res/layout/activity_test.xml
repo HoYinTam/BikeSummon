@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toolbar"
+        android:id="@+id/mToolbar"
         android:background="@color/colorPrimary"
         app:navigationIcon="@drawable/ic_action_nav"
         app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
@@ -21,7 +21,7 @@
 
 
 
-    <com.baidu.mapapi.map.MapView
+    <com.baidu.mapapi.map.TextureMapView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/testMapview"
