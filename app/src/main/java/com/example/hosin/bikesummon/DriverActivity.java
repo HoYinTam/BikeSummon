@@ -19,24 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.EditText;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
-import com.baidu.mapapi.map.MapStatusUpdate;
-import com.baidu.mapapi.map.MapStatusUpdateFactory;
-import com.baidu.mapapi.map.MyLocationConfiguration;
-import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.TextureMapView;
-import com.baidu.mapapi.model.LatLng;
-import com.example.hosin.bikesummon.HttpUtil;
 
-public class CustomerActivity extends AppCompatActivity
+public class DriverActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Toolbar toolbar;
@@ -44,25 +30,20 @@ public class CustomerActivity extends AppCompatActivity
     private String curFragment;
     private Fragment isFragment;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SDKInitializer.initialize(getApplicationContext());
-        setContentView(R.layout.activity_customer);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setContentView(R.layout.activity_driver);
+        toolbar = (Toolbar) findViewById(R.id.driver_toolbar);
+        setSupportActionBar(toolbar);
         toolbar.setTitle("Home");
         curFragment="Home";
-        isFragment=getFragmentManager().findFragmentById(R.id.homeFragment);
-
-        setSupportActionBar(toolbar);
-
+        isFragment=getFragmentManager().findFragmentById(R.id.driverHomeFragment);
 
         //Get UserID
-        Intent intent=getIntent();
-        userID=intent.getIntExtra("userID",0);
-
-
+        Intent intent = getIntent();
+        userID = intent.getIntExtra("userID", 0);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -74,14 +55,13 @@ public class CustomerActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            AlertDialog.Builder builder =new AlertDialog.Builder(CustomerActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(DriverActivity.this);
             builder.setTitle("Exit");
             builder.setMessage("Do you want to Exit?");
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -97,13 +77,13 @@ public class CustomerActivity extends AppCompatActivity
     }
 
     @Override
-      public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         Log.d("toolbar", curFragment);
-        if(curFragment.equals("Profile")){
+        if (curFragment.equals("Profile")) {
             getMenuInflater().inflate(R.menu.profile_toobar, menu);
-        }else if(curFragment.equals("Home")){
-            getMenuInflater().inflate(R.menu.customer, menu);
+        } else if (curFragment.equals("Home")) {
+            getMenuInflater().inflate(R.menu.driver, menu);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -111,7 +91,7 @@ public class CustomerActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.customer, menu);
+        getMenuInflater().inflate(R.menu.driver, menu);
         return true;
     }
 
@@ -124,83 +104,76 @@ public class CustomerActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_about) {
-            AlertDialog aboutDialog=new  AlertDialog.Builder(CustomerActivity.this).setTitle("About").setMessage("Engineer is working hard!").setNegativeButton("OK",null).create();
+            AlertDialog aboutDialog = new AlertDialog.Builder(DriverActivity.this).setTitle("About").setMessage("Engineer is working hard!").setNegativeButton("OK", null).create();
             aboutDialog.show();
             return true;
-        }else if(id==R.id.action_new_order){
-            OrderDialog orderDialog=new OrderDialog(CustomerActivity.this);
-            orderDialog.setTitle("New order");
-            orderDialog.setView(new EditText(this));
-            orderDialog.show();
-            return true;
-        } else if(id==R.id.action_finish){
+        } else if (id == R.id.action_finish) {
             //TODO:upload new profile
-           
+
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         if (id == R.id.nav_profile) {
             //TODO: add profile fragment
             toolbar.setTitle("Profile");
             invalidateOptionsMenu();
 
-            if(!curFragment.equals("Profile")){
-                ProfileFragment fragment=new ProfileFragment();
-                FragmentManager fragmentManager=getFragmentManager();
-                FragmentTransaction transaction=fragmentManager.beginTransaction();
-                transaction.replace(isFragment.getId(),fragment);
-                isFragment=fragment;
+            if (!curFragment.equals("Profile")) {
+                ProfileFragment fragment = new ProfileFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(isFragment.getId(), fragment);
+                isFragment = fragment;
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
-            curFragment="Profile";
+            curFragment = "Profile";
 
         } else if (id == R.id.nav_orders) {
             //TODO: history orders
             toolbar.setTitle("My orders");
-            curFragment="orders";
+            curFragment = "orders";
             invalidateOptionsMenu();
         } else if (id == R.id.action_settings) {
             //TODO:settings
             toolbar.setTitle("Settings");
-            curFragment="setting";
+            curFragment = "setting";
             invalidateOptionsMenu();
         } else if (id == R.id.nav_home) {
             toolbar.setTitle("Home");
 
             invalidateOptionsMenu();
-            if(!curFragment.equals("Home")){
-                HomeFragment fragment=new HomeFragment();
-                FragmentManager fragmentManager=getFragmentManager();
-                FragmentTransaction transaction=fragmentManager.beginTransaction();
-                transaction.replace(isFragment.getId(),fragment);
-                isFragment=fragment;
+            if (!curFragment.equals("Home")) {
+                driverHomeFragment fragment = new driverHomeFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(isFragment.getId(), fragment);
+                isFragment = fragment;
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
-            curFragment="Home";
+            curFragment = "Home";
         } else if (id == R.id.action_logout) {
-            AlertDialog.Builder builder =new AlertDialog.Builder(CustomerActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(DriverActivity.this);
             builder.setTitle("Logout");
             builder.setMessage("Do you want to logout?");
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //TODO:LOGOUT
-                    Intent intent = new Intent(CustomerActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(DriverActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();
                 }
             });
-            builder.setNegativeButton("Cancel",null);
+            builder.setNegativeButton("Cancel", null);
             builder.show();
         }
 

@@ -4,19 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="0dp"
-    android:paddingLeft="0dp"
-    android:paddingRight="0dp"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.hosin.bikesummon.CustomerActivity"
-    tools:showIn="@layout/app_bar_customer"
-    android:id="@+id/mapLayout"
+    tools:context="com.example.hosin.bikesummon.DriverActivity"
+    tools:showIn="@layout/app_bar_driver"
     android:padding="0dp">
 
     <fragment
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:name="com.example.hosin.bikesummon.HomeFragment"
-        android:id="@+id/homeFragment"/>
+        android:name="com.example.hosin.bikesummon.driverHomeFragment"
+        android:id="@+id/driverHomeFragment"/>
+
 </RelativeLayout>

@@ -3,13 +3,17 @@ package com.example.hosin.bikesummon;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -46,6 +50,7 @@ public class RegitsterActivity extends AppCompatActivity {
     private RadioGroup whois;
     private RadioGroup sex;
     private RadioGroup relation;
+    private Toolbar toolbar;
 
     private UserRegisterTask mAuthTask=null;
 
@@ -56,6 +61,17 @@ public class RegitsterActivity extends AppCompatActivity {
         mRegisterView=findViewById(R.id.registerLayout);
 
         mProgressView = findViewById(R.id.register_progress);
+
+        toolbar = (Toolbar) findViewById(R.id.basetoolbar);
+        toolbar.setTitle("Register");
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         /*mProgressView.setGifImage(R.drawable.loading);
         mProgressView.setGifImageType(GifView.GifImageType.COVER);
         WindowManager wm = this.getWindowManager();
@@ -101,6 +117,7 @@ public class RegitsterActivity extends AppCompatActivity {
         });
 
         register=(Button)findViewById(R.id.register);
+        register.setVisibility(View.GONE);
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,6 +126,32 @@ public class RegitsterActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.profile_toobar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_about) {
+            AlertDialog aboutDialog=new  AlertDialog.Builder(RegitsterActivity.this).setTitle("About").setMessage("Engineer is working hard!").setNegativeButton("OK",null).create();
+            aboutDialog.show();
+            return true;
+        }else if(id==R.id.action_finish){
+            //TODO:upload new profile
+            attemptRegister();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -159,6 +202,7 @@ public class RegitsterActivity extends AppCompatActivity {
         String mPassword = password.getText().toString();
         String mNickName = nickname.getText().toString();
         String mPhone = phone.getText().toString();
+        int mSex=sex.getCheckedRadioButtonId();
 
         boolean cancel = false;
         View focusView = null;
@@ -216,7 +260,7 @@ public class RegitsterActivity extends AppCompatActivity {
             if(whois.getCheckedRadioButtonId()==R.id.registerCustom){
                 mAuthTask=new UserRegisterTask(mEmail,mPhone,mNickName,mPassword,true);
             }else{
-                mAuthTask=new UserRegisterTask(mEmail,mPhone,mNickName,mPassword,false);
+                mAuthTask=new UserRegisterTask(mEmail,mPhone,mNickName,mPassword,mSex,false);
             }
 
             mAuthTask.execute((Void) null);
@@ -250,6 +294,7 @@ public class RegitsterActivity extends AppCompatActivity {
         private String mNickname;
         private String mPassword;
         private String mPhone;
+        private int mSex;
         private final String url="http://hellobike.sinaapp.com/register";
 
         UserRegisterTask(String mEmail,String mPhone,String mNickname,String mPassword,Boolean isCustom){
@@ -258,6 +303,14 @@ public class RegitsterActivity extends AppCompatActivity {
             this.mNickname = mNickname;
             this.mPassword = mPassword;
             this.isCustom=isCustom;
+        }
+        UserRegisterTask(String mEmail,String mPhone,String mNickname,String mPassword,int mSex,Boolean isCustom){
+            this.mEmail = mEmail;
+            this.mPhone = mPhone;
+            this.mNickname = mNickname;
+            this.mPassword = mPassword;
+            this.isCustom=isCustom;
+            this.mSex=mSex;
         }
         @Override
         protected Integer doInBackground(Void... params) {
@@ -277,6 +330,7 @@ public class RegitsterActivity extends AppCompatActivity {
                     jsonObject.put("type", "customer");
                 } else {
                     jsonObject.put("type", "driver");
+                    jsonObject.put("sex",(mSex==R.id.male)?"M":"F");
                 }
                 Log.d("json", jsonObject.toString());
                 //out.writeBytes(jsonObject.toString());
@@ -317,14 +371,14 @@ public class RegitsterActivity extends AppCompatActivity {
 
         protected void onPostExecute(final Integer i) {
             if(i>0){
+                Intent intent;
                 if(isCustom){
-                    Intent intent=new Intent(RegitsterActivity.this,TestActivity.class);
-                    intent.putExtra("userID",i);
-                    startActivity(intent);
+                    intent=new Intent(RegitsterActivity.this,CustomerActivity.class);
                 }else {
-
+                    intent=new Intent(RegitsterActivity.this,DriverActivity.class);
                 }
-
+                intent.putExtra("userID",i);
+                startActivity(intent);
             }else{
                     mAuthTask=null;
                     showProgress(false);

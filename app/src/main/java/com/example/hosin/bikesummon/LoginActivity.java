@@ -3,6 +3,7 @@ package com.example.hosin.bikesummon;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -19,9 +20,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -80,11 +84,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private RadioGroup whois;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        toolbar = (Toolbar) findViewById(R.id.basetoolbar);
+        toolbar.setTitle("Login");
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -124,6 +141,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         whois =(RadioGroup) findViewById(R.id.whois);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.profile_toobar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_about) {
+            AlertDialog aboutDialog=new  AlertDialog.Builder(LoginActivity.this).setTitle("About").setMessage("Engineer is working hard!").setNegativeButton("OK",null).create();
+            aboutDialog.show();
+            return true;
+        }else if(id==R.id.action_finish){
+            //TODO:upload new profile
+            attemptLogin();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void populateAutoComplete() {
@@ -414,15 +458,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (success) {
                 //Jump to the activity
+                Intent intent;
                 if(isCustom){
-                    Intent intent=new Intent(LoginActivity.this,TestActivity.class);
-                    intent.putExtra("userID",userID);
-                    startActivity(intent);
+                    intent=new Intent(LoginActivity.this,CustomerActivity.class);
                 }
                 else{
-
+                    intent=new Intent(LoginActivity.this,DriverActivity.class);
                 }
-
+                intent.putExtra("userID",userID);
+                startActivity(intent);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

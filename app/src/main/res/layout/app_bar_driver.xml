@@ -5,16 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.example.hosin.bikesummon.CustomerActivity">
+    tools:context="com.example.hosin.bikesummon.DriverActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-       >
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/driver_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -22,7 +21,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
-   <include layout="@layout/content_customer" />
+    <include layout="@layout/content_driver" />
+
 
 
 </android.support.design.widget.CoordinatorLayout>
