@@ -63,7 +63,9 @@ public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-
+    public TextureMapView getMapView() {
+        return mapView;
+    }
 
     private BDLocationListener locationListener= new BDLocationListener() {
         @Override
@@ -98,11 +100,14 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void run() {
                         try {
-                            String result = httpUtil.doPost("/event", param).toString();
-                            Message message = new Message();
-                            message.what = 0;
-                            message.obj = result;
-                            handler.sendMessage(message);
+                            String result;
+                            result= httpUtil.doPost("/event", param).toString();
+                            if(result!=null){
+                                Message message = new Message();
+                                message.what = 0;
+                                message.obj = result;
+                                handler.sendMessage(message);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (JSONException e) {
@@ -118,13 +123,15 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void run() {
                         try {
-                            String result = httpUtil.doPost("/event", _param).toString();
+                            String result;
+                            result= httpUtil.doPost("/event", _param).toString();
+                            if(result!=null){
+                                Message message = new Message();
+                                message.what = 7;
+                                message.obj = result;
+                                handler.sendMessage(message);
+                            }
 
-                            Message message = new Message();
-                            message.what = 7;
-                            message.obj = result;
-
-                            handler.sendMessage(message);
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (JSONException e) {
@@ -265,7 +272,7 @@ public class HomeFragment extends Fragment {
         mapView.getMap().setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                DriverInfoDialog dialog = new DriverInfoDialog(getActivity(), marker.getExtraInfo().getInt("driverID"));
+                DriverInfoDialog dialog = new DriverInfoDialog(getActivity(), marker.getExtraInfo().getInt("driverID"),0);
                 dialog.show();
                 return false;
             }

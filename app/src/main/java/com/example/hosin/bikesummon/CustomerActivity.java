@@ -7,12 +7,9 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,32 +23,30 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
-import com.baidu.mapapi.map.MapStatusUpdate;
-import com.baidu.mapapi.map.MapStatusUpdateFactory;
-import com.baidu.mapapi.map.MyLocationConfiguration;
-import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
-import com.example.hosin.bikesummon.HttpUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -232,10 +227,10 @@ public class CustomerActivity extends AppCompatActivity
             return true;
         }else if(id==R.id.action_new_order){
 
-                OrderDialog orderDialog=new OrderDialog(CustomerActivity.this,city,userID);
-                orderDialog.setTitle("New order");
-                orderDialog.setView(new EditText(this));
-                orderDialog.show();
+                NewOrderDialog newOrderDialog =new NewOrderDialog(CustomerActivity.this,city,userID);
+                newOrderDialog.setTitle("New order");
+                newOrderDialog.setView(new EditText(this));
+                newOrderDialog.show();
 
             return true;
         } else if(id==R.id.action_finish){
@@ -466,6 +461,30 @@ public class CustomerActivity extends AppCompatActivity
 
         View contentView = LayoutInflater.from(this).inflate(
                 R.layout.pop_window, null);
+
+        List<Order> orders=new ArrayList<Order>();
+        for(int i=0;i<acceptOrders.length();i++){
+            try {
+                Order tmp=new Order(acceptOrders.getInt(i));
+                //TODO;update  mapview
+                TextureMapView mapView=((HomeFragment) getFragmentManager().findFragmentById(R.id.homeFragment)).getMapView();
+
+                LatLng stLoc =new LatLng(tmp.getDepLatitude(),tmp.getDepLongitude());
+                BitmapDescriptor stBitmap= BitmapDescriptorFactory.fromResource(R.mipmap.icon_st);
+                OverlayOptions stOpt=new MarkerOptions().position(stLoc).icon(stBitmap).zIndex(9).draggable(true);
+                mapView.getMap().addOverlay(stOpt);
+
+                LatLng endLoc =new LatLng(tmp.getDepLatitude(),tmp.getDepLongitude());
+                BitmapDescriptor endBitmap= BitmapDescriptorFactory.fromResource(R.mipmap.icon_en);
+                OverlayOptions endOpt=new MarkerOptions().position(endLoc).icon(endBitmap).zIndex(9).draggable(true);
+                mapView.getMap().addOverlay(endOpt);
+
+                orders.add(tmp);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         /*
         // 设置按钮的点击事件
         Button button = (Button) contentView.findViewById(R.id.button1);
@@ -480,6 +499,19 @@ public class CustomerActivity extends AppCompatActivity
 
         final PopupWindow popupWindow = new PopupWindow(contentView,
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        OrderAdapter adapter=new OrderAdapter(CustomerActivity.this,R.layout.accept_order_list,orders,0);
+        ListView listView= (ListView) contentView.findViewById(R.id.accpeptOrdersListView);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Order order = (Order) parent.getAdapter().getItem(position);
+                DriverInfoDialog dialog = new DriverInfoDialog(CustomerActivity.this,order.getDriverID(),order.getOrderID(),1);
+                dialog.show();
+                //TODO:delete orderList
+            }
+        });
 
         popupWindow.setTouchable(true);
 
@@ -499,7 +531,7 @@ public class CustomerActivity extends AppCompatActivity
         // 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
         // 我觉得这里是API的一个bug
         popupWindow.setBackgroundDrawable(getResources().getDrawable(
-                R.drawable.popup_side));
+                R.drawable.glass));
 
         // 设置好参数之后再show
         popupWindow.showAsDropDown(view,500,0);

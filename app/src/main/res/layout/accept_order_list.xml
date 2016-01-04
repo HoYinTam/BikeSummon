@@ -2,11 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f6ffffff">
+    android:weightSum="1">
 
-    <ListView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/accpeptOrdersListView"
-        android:layout_gravity="center_horizontal" />
+        android:text="New Text"
+        android:id="@+id/announce"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal" />
+
 </LinearLayout>

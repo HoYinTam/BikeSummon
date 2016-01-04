@@ -10,10 +10,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,7 +22,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,11 +38,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DriverActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,driverHomeFragment.OnFragmentInteractionListener{
+        implements NavigationView.OnNavigationItemSelectedListener,DriverHomeFragment.OnFragmentInteractionListener{
 
     private Toolbar toolbar;
     private int userID;
@@ -381,6 +386,9 @@ public class DriverActivity extends AppCompatActivity
                 }
             }
             return true;
+        }else if(id==R.id.action_news){
+            showPopupWindow((View)toolbar);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -420,7 +428,7 @@ public class DriverActivity extends AppCompatActivity
 
             invalidateOptionsMenu();
             if (!curFragment.equals("Home")) {
-                driverHomeFragment fragment = new driverHomeFragment();
+                DriverHomeFragment fragment = new DriverHomeFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.replace(isFragment.getId(), fragment);
@@ -471,8 +479,78 @@ public class DriverActivity extends AppCompatActivity
     @Override
     public void onGetInfo(JSONArray orders) {
         this.unAcceptOrders=orders;
-        Log.d("callback","callback");
+        Log.d("callback",this.unAcceptOrders.toString());
         invalidateOptionsMenu();
+    }
+
+    private void showPopupWindow(View view) {
+
+        // 一个自定义的布局，作为显示的内容
+
+        View contentView = LayoutInflater.from(this).inflate(
+                R.layout.pop_window, null);
+
+        List<Order> orders=new ArrayList<Order>();
+        for(int i=0;i<unAcceptOrders.length();i++){
+            try {
+                Order tmp=new Order(unAcceptOrders.getInt(i));
+                //Log.d("order",tmp.getDestName());
+                orders.add(tmp);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /*
+        // 设置按钮的点击事件
+        Button button = (Button) contentView.findViewById(R.id.button1);
+        button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "button is pressed",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+        final PopupWindow popupWindow = new PopupWindow(contentView,
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        OrderAdapter adapter=new OrderAdapter(DriverActivity.this,R.layout.accept_order_list,orders,1);
+        ListView listView= (ListView) contentView.findViewById(R.id.accpeptOrdersListView);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Order order=(Order)parent.getAdapter().getItem(position);
+                OrderInfoDialog dialog=new OrderInfoDialog(DriverActivity.this,order,userID);
+                dialog.show();
+            }
+        });
+
+        popupWindow.setTouchable(true);
+
+       /* popupWindow.setTouchInterceptor(new OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                Log.i("mengdd", "onTouch : ");
+
+                return false;
+                // 这里如果返回true的话，touch事件将被拦截
+                // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+            }
+        });*/
+
+        // 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
+        // 我觉得这里是API的一个bug
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(
+                R.drawable.glass));
+
+        // 设置好参数之后再show
+        popupWindow.showAsDropDown(view,500,0);
+
     }
 
 }

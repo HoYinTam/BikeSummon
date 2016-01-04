@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.baidu.mapapi.search.core.SearchResult;
-import com.baidu.mapapi.search.geocode.GeoCodeOption;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
@@ -26,21 +25,21 @@ import java.io.IOException;
 /**
  * Created by Hosin on 2015/12/25.
  */
-public class OrderDialog extends AlertDialog {
+public class NewOrderDialog extends AlertDialog {
     HttpUtil httpUtil=new HttpUtil();
     Context context;
     String city;
     int ID;
     static Handler handler;
-    public OrderDialog(Context context, int themeResId) {
+    public NewOrderDialog(Context context, int themeResId) {
         super(context, themeResId);
         this.context=context;
     }
-    public OrderDialog(Context context){
+    public NewOrderDialog(Context context){
         super(context);
         this.context=context;
     }
-    public OrderDialog(Context context,String city,int ID){
+    public NewOrderDialog(Context context, String city, int ID){
         super(context);
         this.context=context;
         this.city=city;
@@ -58,7 +57,7 @@ public class OrderDialog extends AlertDialog {
                     try {
                         JSONObject res = new JSONObject(msg.obj.toString());
                         if(res.getInt("status")==0){
-                            OrderDialog.this.dismiss();
+                            NewOrderDialog.this.dismiss();
                         }else{
                             Toast.makeText(context, "opps!Can't submit your order", Toast.LENGTH_SHORT).show();
                         }
@@ -85,7 +84,7 @@ public class OrderDialog extends AlertDialog {
                         param.put("destLongitude", geoCodeResult.getLocation().longitude);
                         param.put("ID", ID);
                         Log.d("json", param.toString());
-                        OrderDialog.this.dismiss();
+                        NewOrderDialog.this.dismiss();
                         mSearch.destroy();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -107,7 +106,7 @@ public class OrderDialog extends AlertDialog {
                         param.put("destLongitude", reverseGeoCodeResult.getLocation().longitude);
                         param.put("ID", ID);
                         Log.d("json", param.toString());
-                        OrderDialog.this.dismiss();
+                        NewOrderDialog.this.dismiss();
                         mSearch.destroy();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -127,20 +126,24 @@ public class OrderDialog extends AlertDialog {
                     //param.put("destLatitude", geoCodeResult.getLocation().latitude);
                     //param.put("destLongitude", geoCodeResult.getLocation().longitude);
                     param.put("city", city);
-                    param.put("address", ((EditText) OrderDialog.this.findViewById(R.id.destination)).getText().toString());
+                    param.put("address", ((EditText) NewOrderDialog.this.findViewById(R.id.destination)).getText().toString());
                     param.put("ID", ID);
-                    param.put("event",2);
+                    param.put("event", 2);
                     Log.d("json", param.toString());
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                String result = httpUtil.doPost("/event", param).toString();
-                                Log.d("json", result);
-                                Message message = new Message();
-                                message.what = 2;
-                                message.obj = result;
-                                handler.sendMessage(message);
+                                String result;
+                                result = httpUtil.doPost("/event", param).toString();
+                                if (result != null) {
+                                    Log.d("json", result);
+                                    Message message = new Message();
+                                    message.what = 2;
+                                    message.obj = result;
+                                    handler.sendMessage(message);
+                                }
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } catch (JSONException e) {
@@ -148,18 +151,18 @@ public class OrderDialog extends AlertDialog {
                             }
                         }
                     }).start();
-                    OrderDialog.this.dismiss();
+                    NewOrderDialog.this.dismiss();
                     mSearch.destroy();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                //mSearch.geocode(new GeoCodeOption().city(city).address(((EditText) OrderDialog.this.findViewById(R.id.destination)).getText().toString()));
+                //mSearch.geocode(new GeoCodeOption().city(city).address(((EditText) NewOrderDialog.this.findViewById(R.id.destination)).getText().toString()));
             }
         });
         ((Button)findViewById(R.id.order_cancel)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OrderDialog.this.dismiss();
+                NewOrderDialog.this.dismiss();
                 mSearch.destroy();
             }
         });

@@ -2,11 +2,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <ImageView
         android:layout_width="93dp"
         android:layout_height="94dp"
         android:layout_gravity="center_horizontal"
         android:src="@mipmap/default_portait" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/orderID"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/userID"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/depLatitude"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/depLongitude"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/destLatitude"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/destLongitude"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/finishTime"/>
 
     <TableLayout
         android:layout_width="match_parent"
@@ -22,14 +59,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="email:"
-                android:id="@+id/tag_email"
+                android:id="@id/tag_email"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/info_email"
+                android:id="@id/info_email"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple" />
         </TableRow>
@@ -43,14 +80,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="username:"
-                android:id="@+id/tag_nickname"
+                android:id="@id/tag_nickname"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/info_nickname"
+                android:id="@id/info_nickname"
                 android:textColor="@android:color/holo_purple"
                 android:textSize="20dp" />
         </TableRow>
@@ -64,14 +101,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="name:"
-                android:id="@+id/tag_name"
+                android:id="@id/tag_name"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/info_name"
+                android:id="@id/info_name"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple"/>
         </TableRow>
@@ -85,88 +122,58 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="phone:"
-                android:id="@+id/tag_tel"
+                android:id="@id/tag_tel"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/info_tel"
+                android:id="@id/info_tel"
                 android:textSize="20dp"
                 android:textColor="@android:color/holo_purple"/>
         </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="destination:"
+                android:id="@+id/textView2"
+                android:textSize="20dp"
+                android:textColor="@android:color/holo_purple" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView3"
+                android:layout_gravity="center_horizontal"
+                android:textSize="20sp" />
+        </TableRow>
     </TableLayout>
-    <RadioGroup
+
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:id="@+id/info_sexGroup"
-        android:visibility="visible">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Male"
-            android:id="@+id/info_male"
-            android:checked="true" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Female"
-            android:id="@+id/info_female"
-            android:layout_marginLeft="10dp" />
-    </RadioGroup>
-
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:id="@+id/info_relationGroup"
-        android:visibility="visible">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Single"
-            android:id="@+id/info_single"
-            android:checked="true" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Couple"
-            android:id="@+id/info_couple" />
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Secret"
-            android:id="@+id/info_secret" />
-    </RadioGroup>
-
-    <RatingBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/info_rating"
         android:layout_gravity="center_horizontal"
-        android:numStars="5" />
+        android:gravity="center_horizontal">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="finish"
-        android:id="@+id/info_finish"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accept"
+            android:id="@+id/driver_accept" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ok"
-        android:id="@+id/info_ok"
-        android:layout_gravity="center_horizontal" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="cancel"
+            android:id="@+id/driver_cancel" />
+    </LinearLayout>
 
 </LinearLayout>

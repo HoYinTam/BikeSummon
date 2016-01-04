@@ -24,9 +24,12 @@ import java.io.IOException;
  * Created by Hosin on 2016/1/3.
  */
 public class DriverInfoDialog extends AlertDialog {
+
     HttpUtil httpUtil=new HttpUtil();
     private Context context;
     private int  ID;
+    private int orderID;
+    private int type; //0: from map 1:from order
     static Handler handler;
 
     private TextView email;
@@ -40,10 +43,22 @@ public class DriverInfoDialog extends AlertDialog {
     private RadioButton couple;
     private RadioButton secret;
 
-    public DriverInfoDialog(Context context,int ID) {
+    private Button ok;
+    private Button finish;
+
+    public DriverInfoDialog(Context context,int ID,int type) {
         super(context);
         this.context=context;
         this.ID=ID;
+        this.type=type;
+    }
+
+    public DriverInfoDialog(Context context,int ID,int orderID,int type) {
+        super(context);
+        this.context=context;
+        this.ID=ID;
+        this.type=type;
+        this.orderID=orderID;
     }
 
     @Override
@@ -61,6 +76,16 @@ public class DriverInfoDialog extends AlertDialog {
         single=(RadioButton)findViewById(R.id.info_single);
         couple=(RadioButton)findViewById(R.id.info_couple);
         secret=(RadioButton)findViewById(R.id.info_secret);
+        ok= (Button) findViewById(R.id.info_ok);
+        finish=(Button)findViewById(R.id.info_finish);
+
+        if(type==1){
+            finish.setVisibility(View.VISIBLE);
+            ok.setText("cancel");
+        }else{
+            finish.setVisibility(View.GONE);
+            ok.setText("ok");
+        }
 
 
         handler=new Handler(){
@@ -107,15 +132,60 @@ public class DriverInfoDialog extends AlertDialog {
                         e.printStackTrace();
                     }
 
+                }else if(msg.what==5){
+                    try {
+                        JSONObject res = new JSONObject(msg.obj.toString());
+                        Log.d("json", res.toString());
+                        if (res.getInt("status") == 0) {
+                                Toast.makeText(context,"order has been finished!",Toast.LENGTH_SHORT);
+                                DriverInfoDialog.this.dismiss();
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
                 super.handleMessage(msg);
             }
         };
 
-        ((Button)findViewById(R.id.info_ok)).setOnClickListener(new View.OnClickListener() {
+        ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DriverInfoDialog.this.dismiss();
+            }
+        });
+
+        finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    final JSONObject param = new JSONObject();
+                    //param.put("destLatitude", geoCodeResult.getLocation().latitude);
+                    //param.put("destLongitude", geoCodeResult.getLocation().longitude);
+                    param.put("orderID", orderID);
+                    param.put("event", 5);
+                    param.put("rating", rating.getRating());
+                    Log.d("json", param.toString());
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                String result = httpUtil.doPost("/event", param).toString();
+                                Log.d("json", result);
+                                Message message = new Message();
+                                message.what = 5;
+                                message.obj = result;
+                                handler.sendMessage(message);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
