@@ -30,7 +30,7 @@ import android.util.Log;
  */
 public class HttpUtil
 {
-	private static final String urlHeader = "http://hellobike.sinaapp.com/";
+	private static final String urlHeader = "http://hellobike.sinaapp.com";
 	private static final int TIMEOUT_IN_MILLIONS = 5000;
 
 	public interface CallBack
@@ -192,7 +192,7 @@ public class HttpUtil
 				param = JSONObject.fromObject(list);*/
 				StringEntity se = new StringEntity(param.toString(),HTTP.UTF_8);
 				post.setEntity(se);
-				Log.d("test", "send finished");
+				Log.d("json", "send finished");
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
@@ -212,14 +212,14 @@ public class HttpUtil
 
 				JSONObject result1 = new JSONObject(result);
 
-				Log.d("test", result.toString());
+				Log.d("json", result.toString());
 				return result1;
 			} else if (response.getStatusLine().getStatusCode() == 500) {
-				Log.d("test", "ʧ��");
+				Log.d("json", "wrong return");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.d("test", "############");
+			Log.d("json", "exception");
 		}
 		
 		return null;

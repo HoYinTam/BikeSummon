@@ -28,15 +28,36 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ProgressBar
-        android:id="@+id/register_progress"
-        style="?android:attr/progressBarStyleLarge"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"
-        android:indeterminate="false"
-        android:layout_gravity="center_horizontal" />
+        android:id="@+id/register_progress_layout"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        >
+
+        <ProgressBar
+            android:id="@+id/register_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:indeterminate="false"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="register..."
+            android:visibility="gone"
+            android:textColor="@android:color/holo_green_light"
+            android:layout_gravity="center_horizontal"
+            />
+
+
+    </LinearLayout>
+
 
     <com.ant.liao.GifView
 
@@ -46,48 +67,78 @@
         android:layout_gravity="center" />
 
 
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/register_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/registerLayout"
-        android:paddingLeft="@dimen/abc_action_bar_content_inset_material"
-        android:paddingRight="@dimen/abc_action_bar_content_inset_material"
-        android:paddingBottom="@dimen/abc_action_bar_content_inset_material"
-        android:padding="@dimen/abc_action_bar_content_inset_material">
+            android:paddingLeft="@dimen/abc_action_bar_content_inset_material"
+            android:paddingRight="@dimen/abc_action_bar_content_inset_material"
+            android:paddingBottom="@dimen/abc_action_bar_content_inset_material"
+            android:padding="@dimen/abc_action_bar_content_inset_material">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Welcome to register"
+                android:text="Welcome to Register"
                 android:id="@+id/welcome"
                 android:gravity="center_horizontal"
                 android:textStyle="bold|italic"
                 android:textColor="@android:color/holo_blue_dark"
-                android:textSize="20sp" />
+                android:textSize="30sp" />
 
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:id="@+id/radioGroup" >
 
-            <RadioButton
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Custom"
-                android:id="@+id/registerCustom"
-                android:checked="true" />
+                android:text="please check your indetity! "
+                android:textColor="@android:color/holo_green_light"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                />
 
-            <RadioButton
-                android:layout_width="wrap_content"
+            <RadioGroup
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Driver"
-                android:id="@+id/registerDriver" />
-        </RadioGroup>
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:id="@+id/radioGroup"
+                android:layout_weight="1"
+                >
 
-        <android.support.design.widget.TextInputLayout
+
+                <RadioButton
+                    android:layout_weight="0.5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Custom"
+                    android:id="@+id/registerCustom"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:layout_weight="0.5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Driver"
+                    android:id="@+id/registerDriver" />
+
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="please fill blanks to finish your register"
+                android:textColor="@android:color/holo_green_light"
+                android:textSize="15sp"
+                android:layout_marginTop="10dp"
+                />
+
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <EditText
@@ -95,23 +146,23 @@
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:ems="10"
-                    android:hint="Email"
+                    android:hint="Email *"
                     android:id="@+id/registerEmail" />
             </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="Username"
-                android:id="@+id/nickname"
-                android:inputType="none" />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_height="wrap_content">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Username *"
+                    android:id="@+id/nickname"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <EditText
@@ -119,11 +170,11 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:id="@+id/registerPhone"
-                    android:hint="Phone"
+                    android:hint="Phone *"
                     android:inputType="phone" />
             </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <EditText
@@ -143,8 +194,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:hint="Password"
+                    android:hint="Password *"
                     android:id="@+id/registerPassword"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Check Password *"
+                    android:id="@+id/registerPassword_check"
                     android:inputType="textPassword" />
             </android.support.design.widget.TextInputLayout>
 
@@ -154,9 +218,12 @@
                 android:orientation="horizontal"
                 android:gravity="center_horizontal"
                 android:id="@+id/sexGroup"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:layout_weight="1"
+                >
 
                 <RadioButton
+                    android:layout_weight="0.5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Male"
@@ -164,57 +231,67 @@
                     android:checked="true" />
 
                 <RadioButton
+                    android:layout_weight="0.5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Female"
                     android:id="@+id/female"
                     android:layout_marginLeft="10dp" />
+
             </RadioGroup>
 
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:id="@+id/relationGroup"
-            android:visibility="gone">
 
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Single"
-                android:id="@+id/single"
-                android:checked="true" />
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:id="@+id/relationGroup"
+                android:visibility="gone"
+                android:layout_weight="1"
+                >
 
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Couple"
-                android:id="@+id/couple" />
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Secret"
-                android:id="@+id/secret" />
-        </RadioGroup>
+                <RadioButton
+                    android:layout_weight="0.333333333"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Single"
+                    android:id="@+id/single"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:layout_weight="0.333333333"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Couple"
+                    android:id="@+id/couple" />
+                <RadioButton
+                    android:layout_weight="0.333333333"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Secret"
+                    android:id="@+id/secret" />
+
+            </RadioGroup>
 
             <!--TODO:USER IMAGE-->
 
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="more"
-            android:id="@+id/more"
-            android:layout_gravity="center_horizontal" />
-
-        <Button
-                android:layout_width="wrap_content"
+            <Button
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="register"
+                android:text="MORE OPTIONS"
+                android:id="@+id/more"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="REGISTER"
                 android:id="@+id/register"
                 android:layout_gravity="center_horizontal" />
 
 
         </LinearLayout>
+
+    </ScrollView>
 </LinearLayout>

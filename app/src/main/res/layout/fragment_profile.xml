@@ -26,25 +26,16 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:ems="10"
-                android:hint="Email"
-                android:id="@+id/profile_Email" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="Username"
-                android:id="@+id/profile_nickname"
-                android:inputType="none" />
+                android:layout_gravity="center"
+                android:hint="hello friend"
+                android:id="@+id/profile_Email"
+                android:editable="false"
+                android:textColor="@android:color/holo_purple"
+                android:textSize="20sp"
+                />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -55,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:id="@+id/profile_Phone"
-                android:hint="Phone"
+                android:hint="Click here to change phone"
                 android:inputType="phone" />
         </android.support.design.widget.TextInputLayout>
 
@@ -65,10 +56,10 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Name"
                 android:ems="10"
+                android:hint="Click here to change nickname"
                 android:inputType="textPersonName"
-                android:id="@+id/profile_Name"
+                android:id="@+id/profile_nickname"
                 android:visibility="visible"/>
         </android.support.design.widget.TextInputLayout>
 
@@ -79,8 +70,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="Password"
-                android:id="@+id/profile_Password"
+                android:hint="Click here to change password"
+                android:id="@+id/profile_password"
+                android:inputType="textPassword" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Click here to check password"
+                android:id="@+id/profile_checkpassword"
                 android:inputType="textPassword" />
         </android.support.design.widget.TextInputLayout>
 

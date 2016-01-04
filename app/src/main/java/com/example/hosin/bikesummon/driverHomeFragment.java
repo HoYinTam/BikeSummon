@@ -4,6 +4,9 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +15,23 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 
 /**
@@ -37,6 +51,9 @@ public class driverHomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private HttpUtil httpUtil=new HttpUtil();
+    private static Handler handler;
 
     //Map
     private TextureMapView mapView=null;
@@ -58,6 +75,33 @@ public class driverHomeFragment extends Fragment {
             mapView.getMap().setMyLocationData(data);
             mapView.getMap().setMyLocationEnabled(true);
             mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null));
+            try {
+                final JSONObject param = new JSONObject();
+                param.put("event", 0);
+                param.put("type", "driver");
+                param.put("ID", getActivity().getIntent().getIntExtra("userID", 3));
+                param.put("latitude", bdLocation.getLatitude());
+                param.put("longitude", bdLocation.getLongitude());
+                Log.d("json", param.toString());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String result = httpUtil.doPost("/event", param).toString();
+                            Message message = new Message();
+                            message.what = 0;
+                            message.obj = result;
+                            handler.sendMessage(message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     };
 
@@ -98,6 +142,24 @@ public class driverHomeFragment extends Fragment {
         locationClient.registerLocationListener(locationListener);
         initLocation();
         locationClient.start();
+
+        handler=new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if(msg.what==0){
+                    try {
+                        JSONObject res = new JSONObject(msg.obj.toString());
+                        //TODO:update orderlist
+                        Log.d("json",res.toString());
+                        mListener.onGetInfo(res.getJSONArray("orderList"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                super.handleMessage(msg);
+            }
+        };
 
     }
 
@@ -148,12 +210,7 @@ public class driverHomeFragment extends Fragment {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -183,7 +240,6 @@ public class driverHomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onGetInfo(JSONArray orders);
     }
 }

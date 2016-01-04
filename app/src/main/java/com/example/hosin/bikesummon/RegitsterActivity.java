@@ -33,6 +33,9 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class RegitsterActivity extends AppCompatActivity {
 
 
@@ -42,6 +45,7 @@ public class RegitsterActivity extends AppCompatActivity {
 
     private EditText email;
     private EditText phone;
+    private EditText checkPassword;
     private EditText password;
     private EditText nickname;
     private EditText realName;
@@ -77,6 +81,7 @@ public class RegitsterActivity extends AppCompatActivity {
         WindowManager wm = this.getWindowManager();
         mProgressView.setShowDimension(wm.getDefaultDisplay().getWidth(),80);*/
 
+        checkPassword=(EditText)findViewById(R.id.registerPassword_check);
         email=(EditText)findViewById(R.id.registerEmail);
         phone=(EditText)findViewById(R.id.registerPhone);
         password=(EditText)findViewById(R.id.registerPassword);
@@ -196,32 +201,46 @@ public class RegitsterActivity extends AppCompatActivity {
         password.setError(null);
         nickname.setError(null);
         phone.setError(null);
+        checkPassword.setError(null);
+
 
         // Store values at the time of the login attempt.
         String mEmail = email.getText().toString();
         String mPassword = password.getText().toString();
         String mNickName = nickname.getText().toString();
         String mPhone = phone.getText().toString();
+        String mCheckPassword = checkPassword.getText().toString();
         int mSex=sex.getCheckedRadioButtonId();
 
         boolean cancel = false;
         View focusView = null;
+        boolean isFirstRequest=true;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(mPassword) && !isPasswordValid(mPassword)) {
-            password.setError(getString(R.string.error_invalid_password));
-            focusView = password;
-            cancel = true;
+        //Check for a correct password
+        if(TextUtils.isEmpty(mCheckPassword)){
+            focusView=checkPassword;
+            checkPassword.setError(getString(R.string.error_field_required));
+            cancel=true;
+        }else if (!mCheckPassword.equals(mPassword)){
+            checkPassword.setError("password is not correct!");
+            focusView=checkPassword;
+            cancel=true;
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(mEmail)) {
             email.setError(getString(R.string.error_field_required));
-            focusView = email;
+            if (isFirstRequest){
+                focusView = email;
+                isFirstRequest=false;
+            }
             cancel = true;
         } else if (!isEmailValid(mEmail)) {
             email.setError(getString(R.string.error_invalid_email));
-            focusView = email;
+            if (isFirstRequest){
+                focusView = email;
+                isFirstRequest=false;
+            }
             cancel = true;
         }
 
@@ -267,24 +286,62 @@ public class RegitsterActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isNicknameValid(String mNickName) {
-        //TODO: More judgement on nickname
-            return mNickName.length() > 4;
+    private boolean isNicknameValid(String sNickName) {
+        boolean flag = false;
+
+        Pattern pattern = Pattern.compile("^[A-Za-z][A-Za-z0-9_]*$");
+        Matcher matcher = pattern.matcher(sNickName);
+
+        if (!matcher.matches()){
+            nickname.setError("only support letters, numbers & underline !");
+        }else if (sNickName.length() < 4){
+            nickname.setError("length must greater than 4");
+        }else{
+            flag = true;
+        }
+
+        return flag;
     }
 
-    private boolean isPhoneValid(String mPhone) {
-        //TODO: More judgement on phone
-        return mPhone.length()==11;
+    private boolean isPhoneValid(String sPhone) {
+        String format = "^[1]([3][0-9]{1}|59|58|88|89)[0-9]{8}$";
+
+        Pattern pattern = Pattern.compile(format);
+        Matcher matcher = pattern.matcher(sPhone);
+
+        if(! matcher.matches()){
+            phone.setError("invalid mobile number !");
+        }
+
+        return matcher.matches();
+    }
+    private boolean isEmailValid(String sEmail) {
+        Boolean flag = false;
+        String format = "\\p{Alpha}\\w{2,15}[@][a-z0-9]{2,}[.]\\p{Lower}{2,}";
+
+        if (sEmail.matches(format)){
+            flag = true;
+        }else{
+            email.setError("invalid email address !");
+        }
+
+        return flag;
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: More judgement on Email
-        return email.contains("@");
-    }
+    private boolean isPasswordValid(String sPassword) {
+        Boolean flag = false;
+        Pattern pattern = Pattern.compile("([a-z]|[0-9]|[A-Z]){8,}");
+        Matcher matcher = pattern.matcher(sPassword);
 
-    private boolean isPasswordValid(String password) {
-        //TODO: More judgement on password
-        return password.length() > 4;
+        if (sPassword.length()<7){
+            password.setError("length must be greater than 7");
+        } else if(!matcher.matches()){
+            password.setError("must contains number and lower case letters !");
+        }else {
+            flag = true;
+        }
+
+        return flag;
     }
 
     public class UserRegisterTask extends AsyncTask<Void,Void,Integer>{

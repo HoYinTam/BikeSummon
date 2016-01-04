@@ -1,24 +1,39 @@
 package com.example.hosin.bikesummon;
 
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 
 /**
@@ -34,6 +49,8 @@ public class HomeFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private HttpUtil httpUtil=new HttpUtil();
+    private static Handler handler;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -46,6 +63,8 @@ public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+
+
     private BDLocationListener locationListener= new BDLocationListener() {
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
@@ -57,10 +76,65 @@ public class HomeFragment extends Fragment {
                 mapView.getMap().setMapStatus(update);//locate where you are on the map
                 isFirst=false;
             }
+
+
+            if(mListener!=null){
+                //Log.d("location", bdLocation.getCity());
+                mListener.onGetCity(bdLocation.getCity());
+            }
             MyLocationData data=new MyLocationData.Builder().accuracy(100).latitude(bdLocation.getLatitude()).longitude(bdLocation.getLongitude()).build();
             mapView.getMap().setMyLocationData(data);
             mapView.getMap().setMyLocationEnabled(true);
             mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null));
+            try {
+                final JSONObject param=new JSONObject();
+                param.put("event", 0);
+                param.put("type", "customer");
+                param.put("ID", getActivity().getIntent().getIntExtra("userID", 3));
+                param.put("latitude", bdLocation.getLatitude());
+                param.put("longitude", bdLocation.getLongitude());
+                Log.d("json", param.toString());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String result = httpUtil.doPost("/event", param).toString();
+                            Message message = new Message();
+                            message.what = 0;
+                            message.obj = result;
+                            handler.sendMessage(message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                final JSONObject _param=new JSONObject();
+                _param.put("event", 7);
+                _param.put("ID", getActivity().getIntent().getIntExtra("userID", 3));
+                Log.d("json", _param.toString());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String result = httpUtil.doPost("/event", _param).toString();
+
+                            Message message = new Message();
+                            message.what = 7;
+                            message.obj = result;
+
+                            handler.sendMessage(message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     };
 
@@ -101,6 +175,44 @@ public class HomeFragment extends Fragment {
         initLocation();
         locationClient.start();
 
+        handler=new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if(msg.what==0){
+                    try {
+                        JSONObject res = new JSONObject(msg.obj.toString());
+                        //TODO:update orderlist
+                        Log.d("json", res.toString());
+                        mListener.onGetInfo(res.getJSONArray("orderList"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }else if(msg.what==7){
+                    try {
+                        mapView.getMap().clear();
+                        JSONObject res = new JSONObject(msg.obj.toString());
+                        //TODO:update nearby
+                        Log.d("json",res.toString());
+                        JSONArray drivers=res.getJSONArray("drivers");
+                        JSONArray latitude=res.getJSONArray("latitude");
+                        JSONArray longitude=res.getJSONArray("longitude");
+                        for(int i=0;i<drivers.length();i++){
+                            LatLng loc =new LatLng(latitude.getDouble(i),longitude.getDouble(i));
+                            BitmapDescriptor bitmap= BitmapDescriptorFactory.fromResource(R.mipmap.icon_gcoding);
+                            OverlayOptions opt=new MarkerOptions().position(loc).icon(bitmap).zIndex(9).draggable(true);
+                            Marker marker=(Marker)(mapView.getMap().addOverlay(opt));
+                            Bundle bundle=new Bundle();
+                            bundle.putInt("driverID", drivers.getInt(i));
+                            marker.setExtraInfo(bundle);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                super.handleMessage(msg);
+            }
+        };
 
 
 
@@ -150,26 +262,30 @@ public class HomeFragment extends Fragment {
         mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null));
         mapView.showScaleControl(false);
         mapView.showZoomControls(false);
+        mapView.getMap().setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                DriverInfoDialog dialog = new DriverInfoDialog(getActivity(), marker.getExtraInfo().getInt("driverID"));
+                dialog.show();
+                return false;
+            }
+        });
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+    public void onAttach(Activity activity) {
+        Log.d("Fragment", "attach");
+
+        if (activity instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) activity;
         } else {
-            throw new RuntimeException(context.toString()
+            throw new RuntimeException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        super.onAttach(activity);
     }
+
 
     @Override
     public void onDetach() {
@@ -188,7 +304,7 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onGetCity(String city);
+        void onGetInfo(JSONArray orders);
     }
 }
