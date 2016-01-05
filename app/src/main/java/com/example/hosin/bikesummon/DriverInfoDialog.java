@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,8 @@ import android.widget.RadioButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.baidu.mapapi.map.TextureMapView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,7 +97,7 @@ public class DriverInfoDialog extends AlertDialog {
                 if(msg.what==6){
                     try {
                         JSONObject res = new JSONObject(msg.obj.toString());
-                        Log.d("json",res.toString());
+                        Log.d("driverInfo",res.toString());
                         if(res.getInt("status")==0){
                                 email.setText(res.getString("email"));
                                 username.setText(res.getString("username"));
@@ -137,7 +140,14 @@ public class DriverInfoDialog extends AlertDialog {
                         JSONObject res = new JSONObject(msg.obj.toString());
                         Log.d("json", res.toString());
                         if (res.getInt("status") == 0) {
-                                Toast.makeText(context,"order has been finished!",Toast.LENGTH_SHORT);
+                                Toast.makeText(context, "order has been finished!", Toast.LENGTH_SHORT);
+
+                            /*View view= LayoutInflater.from(context).inflate(R.layout.fragment_home, null);
+                                TextureMapView mapView=(TextureMapView) view.findViewById(R.id.textureMapView);
+                                Log.d("mapView",mapView.toString());*/
+                            ((CustomerActivity)context).getEn().remove();
+                            ((CustomerActivity)context).getSt().remove();
+
                                 DriverInfoDialog.this.dismiss();
                         }
                     }catch (Exception e){
@@ -196,7 +206,7 @@ public class DriverInfoDialog extends AlertDialog {
             param.put("ID", ID);
             param.put("event",6);
             param.put("type", "driver");
-            Log.d("json", param.toString());
+            Log.d("driverInfo", param.toString());
             new Thread(new Runnable() {
                 @Override
                 public void run() {

@@ -9,21 +9,22 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+
 /**
  * Created by Hosin on 2016/1/4.
  */
 public class Order {
-    private int orderID;
-    private int userID;
-    private int driverID;
-    private double depLatitude;
-    private double depLongitude;
-    private double destLatitude;
-    private double destLongitude;
-    private String finishTime;
-    private String destName;
+    public int orderID;
+    public  int userID;
+    public  int driverID;
+    public  Double depLatitude;
+    public  Double depLongitude;
+    public Double destLatitude;
+    public Double destLongitude;
+    public String finishTime;
+    public String destName;
     private HttpUtil httpUtil=new HttpUtil();
-    private static Handler handler;
+    public static Handler handler;
 
     public Order(int orderID){
         this.orderID=orderID;
@@ -35,17 +36,7 @@ public class Order {
                     try {
                         JSONObject res = new JSONObject(msg.obj.toString());
                         Log.d("json", res.toString());
-                        if(res.getInt("status")==0){
-                            userID=res.getInt("userID");
-                            depLatitude=res.getDouble("depLatitude");
-                            depLongitude=res.getDouble("depLongitude");
-                            destLatitude=res.getDouble("destLatitude");
-                            destLongitude=res.getDouble("destLongitude");
-                            finishTime=res.getString("finishTime");
-                            destName=res.getString("destName");
-                            //driverID=res.getInt("driverID");
-                            Log.d("order",destName);
-                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -65,6 +56,18 @@ public class Order {
                     try {
                         String result = httpUtil.doPost("/event", param).toString();
                         Log.d("json", result);
+                        JSONObject res=new JSONObject(result);
+                        if(res.getInt("status")==0){
+                            setUserID(res.getInt("userID"));
+                            setDepLatitude(res.getDouble("depLatitude"));
+                            setDepLongitude(res.getDouble("depLongitude"));
+                            setDestLatitude(res.getDouble("destLatitude"));
+                            setDestLongitude(res.getDouble("destLongitude"));
+                            setFinishTime(res.getString("finishTime"));
+                            setDestName(res.getString("destName"));
+                            driverID=res.getInt("driverID");
+                            Log.d("drawMap", String.valueOf(res.getDouble("destLatitude")));
+                        }
                         Message message = new Message();
                         message.what = 11;
                         message.obj = result;
@@ -82,45 +85,91 @@ public class Order {
 
     }
 
+    public void setDepLatitude(double depLatitude) {
+        Order.this.depLatitude = depLatitude;
+    }
+
+    public void setDepLongitude(double depLongitude) {
+        Order.this.depLongitude = depLongitude;
+    }
+
+    public void setDestLatitude(double destLatitude) {
+        Order.this.destLatitude = destLatitude;
+    }
+
+    public void setDestLongitude(double destLongitude) {
+        Order.this.destLongitude = destLongitude;
+    }
+
+    public void setDestName(String destName) {
+        Log.d("set",destName);
+        Order.this.destName = destName;
+    }
+
+    public void setDriverID(int driverID) {
+        Order.this.driverID = driverID;
+    }
+
+    public void setFinishTime(String finishTime) {
+        Order.this.finishTime = finishTime;
+    }
+
+    public void setOrderID(int orderID) {
+        Order.this.orderID = orderID;
+    }
+
+    public void setUserID(int userID) {
+        Order.this.userID = userID;
+    }
 
     public double getDepLatitude() {
-        return depLatitude;
+        while(depLatitude==null);
+
+        return  Order.this.depLatitude.doubleValue();
+    }
+    public  double getDepLongitude() {
+        while(depLongitude==null);
+
+        return  Order.this.depLongitude;
+    }
+    public  double getDestLatitude() {
+        while(destLatitude==null);
+
+        return Order.this.destLatitude;
     }
 
-    public double getDepLongitude() {
-        return depLongitude;
+    public  double getDestLongitude() {
+        while(destLongitude==null);
+        Log.d("drawMap", String.valueOf(destLongitude));
+        return Order.this.destLongitude;
     }
 
-    public double getDestLatitude() {
-        return destLatitude;
+
+
+    public String getFinishTime() {
+        while (finishTime==null);
+        return Order.this.finishTime;
     }
 
-    public double getDestLongitude() {
-        return destLongitude;
+    public  int getUserID() {
+        return Order.this.userID;
+    }
+
+
+
+    public  String getDestName() {
+        while (destName==null);
+        return Order.this.destName;
     }
 
     public int getOrderID() {
         return orderID;
     }
 
-    public String getFinishTime() {
-        return finishTime;
-    }
-
-    public int getUserID() {
-        return userID;
-    }
-
-    public String getDestName() {
-        if(destName==null){
-            Log.d("null","null");
-        }
-        return destName;
-    }
-
     public int getDriverID() {
         return driverID;
     }
+
 
 
 }

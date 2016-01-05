@@ -204,6 +204,7 @@ public class DriverHomeFragment extends Fragment {
         mapView.getMap().setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null));
         mapView.showScaleControl(false);
         mapView.showZoomControls(false);
+        mListener.onGetMapView(mapView);
         return view;
     }
 
@@ -238,5 +239,6 @@ public class DriverHomeFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         void onGetInfo(JSONArray orders);
+        void onGetMapView(TextureMapView mapView);
     }
 }

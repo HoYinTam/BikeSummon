@@ -32,6 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.TextureMapView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,6 +57,18 @@ public class DriverActivity extends AppCompatActivity
     private SharedPreferences pref;
     public static Handler handler;
     private JSONArray unAcceptOrders;
+
+    private TextureMapView mapView;
+    private Marker st;
+    private Marker en;
+
+    public void setSt(Marker st) {
+        this.st = st;
+    }
+
+    public void setEn(Marker en) {
+        this.en = en;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +116,7 @@ public class DriverActivity extends AppCompatActivity
                         if(res.getInt("status")==0){
                             toolbar.setTitle("Home");
                             invalidateOptionsMenu();
-                            HomeFragment fragment=new HomeFragment();
+                            DriverHomeFragment fragment=new DriverHomeFragment();
                             FragmentManager fragmentManager=getFragmentManager();
                             FragmentTransaction transaction=fragmentManager.beginTransaction();
                             transaction.replace(isFragment.getId(),fragment);
@@ -216,14 +230,16 @@ public class DriverActivity extends AppCompatActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         Log.d("toolbar", curFragment);
-        if (curFragment.equals("Profile")) {
+        if (toolbar.getTitle().equals("Profile")) {
             getMenuInflater().inflate(R.menu.profile_toobar, menu);
-        } else if (curFragment.equals("Home")) {
+        } else if (toolbar.getTitle().equals("Home")) {
             if(unAcceptOrders!=null&&unAcceptOrders.length()>0){
                 getMenuInflater().inflate(R.menu.driver_redpoint, menu);
             }else {
                 getMenuInflater().inflate(R.menu.driver, menu);
             }
+        }else if(toolbar.getTitle().equals("Serving")){
+            getMenuInflater().inflate(R.menu.serving_toolbar, menu);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -249,7 +265,7 @@ public class DriverActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_finish) {
             //TODO:upload new profile
-            if (curFragment.equals("Profile")) {
+            if (toolbar.getTitle().equals("Profile")) {
 
                 View view = isFragment.getView();
 
@@ -338,7 +354,7 @@ public class DriverActivity extends AppCompatActivity
                     try {
                         final JSONObject param = new JSONObject();
                         param.put("event", 8);
-                        param.put("type", "customer");
+                        param.put("type", "driver");
                         param.put("ID", userID);
                         param.put("username", ((EditText) view.findViewById(R.id.profile_nickname)).getText().toString());
                         param.put("email", ((TextView) view.findViewById(R.id.profile_Email)).getText().toString());
@@ -384,6 +400,11 @@ public class DriverActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
                 }
+            }else if(toolbar.getTitle().equals("Serving")){
+                if(st!=null) st.remove();
+                if(en!=null) en.remove();
+                toolbar.setTitle("Home");
+                invalidateOptionsMenu();
             }
             return true;
         }else if(id==R.id.action_news){
@@ -483,6 +504,11 @@ public class DriverActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
+    @Override
+    public void onGetMapView(TextureMapView mapView) {
+        this.mapView=mapView;
+    }
+
     private void showPopupWindow(View view) {
 
         // 一个自定义的布局，作为显示的内容
@@ -553,4 +579,11 @@ public class DriverActivity extends AppCompatActivity
 
     }
 
+    public TextureMapView getMapView() {
+        return mapView;
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
 }

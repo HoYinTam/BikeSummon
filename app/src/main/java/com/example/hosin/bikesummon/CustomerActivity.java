@@ -63,6 +63,9 @@ public class CustomerActivity extends AppCompatActivity
     private JSONArray acceptOrders;
     public static Handler handler;
 
+    private TextureMapView mapView;
+    private Marker st;
+    private Marker en;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -372,8 +375,8 @@ public class CustomerActivity extends AppCompatActivity
             }
             return true;
         }else if(id==R.id.action_news){
-            showPopupWindow((View)toolbar);
-            return true;
+            showPopupWindow(toolbar);
+            //return false;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -443,6 +446,11 @@ public class CustomerActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
+    @Override
+    public void onGetMapView(TextureMapView mapView) {
+        this.mapView=mapView;
+    }
+
     private void switchContent(Fragment from, Fragment to) {
         if (isFragment != to) {
             isFragment = to;
@@ -467,17 +475,19 @@ public class CustomerActivity extends AppCompatActivity
             try {
                 Order tmp=new Order(acceptOrders.getInt(i));
                 //TODO;update  mapview
-                TextureMapView mapView=((HomeFragment) getFragmentManager().findFragmentById(R.id.homeFragment)).getMapView();
+                if(st!=null) st.remove();
+                if(en!=null) en.remove();
 
                 LatLng stLoc =new LatLng(tmp.getDepLatitude(),tmp.getDepLongitude());
                 BitmapDescriptor stBitmap= BitmapDescriptorFactory.fromResource(R.mipmap.icon_st);
                 OverlayOptions stOpt=new MarkerOptions().position(stLoc).icon(stBitmap).zIndex(9).draggable(true);
-                mapView.getMap().addOverlay(stOpt);
+                st= (Marker) mapView.getMap().addOverlay(stOpt);
 
-                LatLng endLoc =new LatLng(tmp.getDepLatitude(),tmp.getDepLongitude());
+                LatLng endLoc =new LatLng(tmp.getDestLatitude(),tmp.getDestLongitude());
+                Log.d("drawMap", String.valueOf(tmp.getDestLatitude()));
                 BitmapDescriptor endBitmap= BitmapDescriptorFactory.fromResource(R.mipmap.icon_en);
                 OverlayOptions endOpt=new MarkerOptions().position(endLoc).icon(endBitmap).zIndex(9).draggable(true);
-                mapView.getMap().addOverlay(endOpt);
+                en= (Marker) mapView.getMap().addOverlay(endOpt);
 
                 orders.add(tmp);
             } catch (JSONException e) {
@@ -538,5 +548,12 @@ public class CustomerActivity extends AppCompatActivity
 
     }
 
+    public Marker getSt() {
+        return st;
+    }
+
+    public Marker getEn() {
+        return en;
+    }
 }
 

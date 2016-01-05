@@ -60,12 +60,11 @@ public class HomeFragment extends Fragment {
     private TextureMapView mapView=null;
     private LocationClient locationClient=null;
     boolean isFirst=true;
+    Marker marker;
 
     private OnFragmentInteractionListener mListener;
 
-    public TextureMapView getMapView() {
-        return mapView;
-    }
+
 
     private BDLocationListener locationListener= new BDLocationListener() {
         @Override
@@ -197,7 +196,7 @@ public class HomeFragment extends Fragment {
 
                 }else if(msg.what==7){
                     try {
-                        mapView.getMap().clear();
+                        if(marker!=null) marker.remove();
                         JSONObject res = new JSONObject(msg.obj.toString());
                         //TODO:update nearby
                         Log.d("json",res.toString());
@@ -208,7 +207,7 @@ public class HomeFragment extends Fragment {
                             LatLng loc =new LatLng(latitude.getDouble(i),longitude.getDouble(i));
                             BitmapDescriptor bitmap= BitmapDescriptorFactory.fromResource(R.mipmap.icon_gcoding);
                             OverlayOptions opt=new MarkerOptions().position(loc).icon(bitmap).zIndex(9).draggable(true);
-                            Marker marker=(Marker)(mapView.getMap().addOverlay(opt));
+                            marker=(Marker)(mapView.getMap().addOverlay(opt));
                             Bundle bundle=new Bundle();
                             bundle.putInt("driverID", drivers.getInt(i));
                             marker.setExtraInfo(bundle);
@@ -277,6 +276,7 @@ public class HomeFragment extends Fragment {
                 return false;
             }
         });
+        mListener.onGetMapView(mapView);
         return view;
     }
 
@@ -313,5 +313,6 @@ public class HomeFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onGetCity(String city);
         void onGetInfo(JSONArray orders);
+        void onGetMapView(TextureMapView mapView);
     }
 }
